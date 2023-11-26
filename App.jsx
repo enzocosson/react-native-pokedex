@@ -1,10 +1,15 @@
 import React, { useEffect } from "react";
 import { View, StyleSheet, Text } from "react-native";
 import Home from "./views/Home/Home";
+import Pokedex from "./views/Pokedex/Pokedex";
+import PokemonView from "./views/PokemonView/PokemonView";
+import ARView from "./views/CaptureView/CaptureView";
 import MonContexte from "./createContext";
-import * as Font from "expo-font";
+import Header from "./component/Header/Header";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import {
+  createNativeStackNavigator,
+} from "@react-navigation/native-stack";
 
 const App = () => {
   const contextValue = {
@@ -13,10 +18,25 @@ const App = () => {
   const Stack = createNativeStackNavigator();
 
   return (
-    <MonContexte.Provider value={contextValue}>
+    <MonContexte.Provider value={contextValue} styles={styles.container}>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen
+            name="Pokedex"
+            component={Pokedex}
+            options={{ header: () => <Header /> }}
+          />
+          <Stack.Screen
+            name="PokemonView"
+            component={PokemonView}
+            options={{ header: () => <Header /> }}
+          />
+          <Stack.Screen
+            name="ARView"
+            component={ARView}
+            options={{ header: () => <Header /> }}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </MonContexte.Provider>
@@ -25,7 +45,9 @@ const App = () => {
 
 const styles = StyleSheet.create({
   container: {
+    position: "relative",
     flex: 1,
+    width: "100%",
   },
 });
 
