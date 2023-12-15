@@ -16,25 +16,26 @@ import { useNavigation } from "@react-navigation/native";
 
 const Pokedex = () => {
   const [pokemonList, setPokemonList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredPokemonList, setFilteredPokemonList] = useState([]);
 
-  const [selectedPokemon, setSelectedPokemon] = useState(null);
   const navigation = useNavigation();
 
   const navigateToPokemonView = (pokemon) => {
     if (pokemon) {
-      navigation.navigate('PokemonView', { pokemon });
+      navigation.navigate("PokemonView", { pokemon });
     }
   };
-  
 
   useEffect(() => {
     const fetchPokemonData = async () => {
       try {
         const response = await axios.get(
-          "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=26"
+          "https://pokeapi.co/api/v2/pokemon/?offset=0&limit=50"
         );
         const results = response.data.results;
         setPokemonList(results);
+        setFilteredPokemonList(results);
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des données Pokemon",
@@ -50,6 +51,14 @@ const Pokedex = () => {
     const urlParts = url.split("/");
     return urlParts[urlParts.length - 2];
   };
+
+  useEffect(() => {
+    // Filtrer la liste des Pokémon lorsque searchTerm change
+    const filteredList = pokemonList.filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredPokemonList(filteredList);
+  }, [searchTerm, pokemonList]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -67,6 +76,8 @@ const Pokedex = () => {
           <TextInput
             style={styles.input__search}
             placeholder="Faites vos recherches..."
+            value={searchTerm}
+            onChangeText={(text) => setSearchTerm(text)}
           />
           <TouchableOpacity
             style={styles.input__sumbit}
@@ -83,7 +94,7 @@ const Pokedex = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.container___cards}>
-          {pokemonList.map((pokemon, index) => (
+          {filteredPokemonList.map((pokemon, index) => (
             <TouchableOpacity
               key={index}
               onPress={() => navigateToPokemonView(pokemon)}
