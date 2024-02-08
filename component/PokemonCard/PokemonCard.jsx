@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
 
-const PokemonCard = ({ index, name, id }) => {
+const PokemonCard = ({ index, name, id, pokemonId }) => {
   const formattedId = String(id).padStart(4, "0");
   const imageUrl = `https://raw.githubusercontent.com/wellrccity/pokedex-html-js/master/assets/img/pokemons/poke_${id}.gif`;
 
@@ -10,10 +10,13 @@ const PokemonCard = ({ index, name, id }) => {
   useEffect(() => {
     const fetchPokemonTypes = async () => {
       try {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}/`);
+        const response = await fetch(
+          `https://pokeapi.co/api/v2/pokemon/${id}/`
+        );
         const data = await response.json();
         const types = data.types.map((type) => type.type.name);
         setPokemonTypes(types);
+        console.log(data);
       } catch (error) {
         console.error("Erreur lors du chargement des types du Pokémon", error);
       }
@@ -106,10 +109,7 @@ const PokemonCard = ({ index, name, id }) => {
 
   return (
     <View style={[styles.card, getBackgroundTypeStyle(pokemonTypes[0])]}>
-       <Image
-          source={{ uri: imageUrl }}
-          style={styles.image}
-        />
+      <Image source={{ uri: imageUrl }} style={styles.image} />
       <View style={styles.cardText}>
         <Text style={styles.number}>n°{formattedId}</Text>
         <Text style={styles.name}>{name}</Text>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "flex-end",
   },
-  image:{
+  image: {
     width: 150,
     height: 130,
     resizeMode: "contain",
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "#ffffff99",
 
-    display:"flex",
+    display: "flex",
     alignItems: "center",
     justifyContent: "center",
 
@@ -189,128 +189,126 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 5,
   },
-    grass: {
-        backgroundColor: "#9BCB51",
-        shadowColor: "#9BCB51",
-    },
-    poison: {
-        backgroundColor: "#B97FC9",
-        shadowColor: "#B97FC9",
-    },
-    fire: {
-        backgroundColor: "#FD7D24",
-        shadowColor: "#FD7D24",
-    },
-    flying: {
-        backgroundColor: "#3DC7EF",
-        shadowColor: "#3DC7EF",
-    },
-    water: {
-        backgroundColor: "#4592C4",
-        shadowColor: "#4592C4",
-    },
-    bug: {
-        backgroundColor: "#729F3F",
-        shadowColor: "#729F3F",
-    },
-    normal: {
-        backgroundColor: "#A4ACAF",
-        shadowColor: "#A4ACAF",
-    },
-    electric: {
-        backgroundColor: "#EED535",
-        shadowColor: "#EED535",
-    },
-    ground: {
-        backgroundColor: "#AB9842",
-        shadowColor: "#AB9842",
-    },
-    fairy: {
-        backgroundColor: "#FDB9E9",
-        shadowColor: "#FDB9E9",
-    },
-    fighting: {
-        backgroundColor: "#D56723",
-        shadowColor: "#D56723",
-    },
-    psychic: {
-        backgroundColor: "#F366B9",
-        shadowColor: "#F366B9",
-    },
-    rock: {
-        backgroundColor: "#A38C21",
-        shadowColor: "#A38C21",
-    },
-    steel: {
-        backgroundColor: "#9EB7B8",
-        shadowColor: "#9EB7B8",
-    },
-    ice: {
-        backgroundColor: "#51C4E7",
-        shadowColor: "#51C4E7",
-    },
-    ghost: {
-        backgroundColor: "#7B62A3",
-        shadowColor: "#7B62A3",
-    },
-    dragon: {
-        backgroundColor: "#F16E57",
-        shadowColor: "#F16E57",
-    },
-    // background type :
-    grassBackgroundType:{
-        backgroundColor: "#A9DFAF",
-    },
-    poisonBackgroundType:{
-        backgroundColor: "#DBA4EB",
-    },
-    fireBackgroundType:{
-        backgroundColor: "#EEA57B",
-    },
-    flyingBackgroundType:{
-        backgroundColor: "#3DC7EF",
-    },
-    waterBackgroundType:{
-        backgroundColor: "#95C9EA",
-    },
-    bugBackgroundType:{
-        backgroundColor: "#C6D16E",
-    },
-    normalBackgroundType:{
-        backgroundColor: "#C3D1D7",
-    },
-    electricBackgroundType:{
-        backgroundColor: "#E5D776",
-    },
-    groundBackgroundType:{
-        backgroundColor: "#F4DD86",
-    },
-    fairyBackgroundType:{
-        backgroundColor: "#FFE4F6",
-    },
-    fightingBackgroundType:{
-        backgroundColor: "#F1BA80",
-    },
-    psychicBackgroundType:{
-        backgroundColor: "#F993CF",
-    },
-    rockBackgroundType:{
-        backgroundColor: "#E3D8B0",
-    },
-    steelBackgroundType:{
-        backgroundColor: "#DAE9EB",
-    },
-    iceBackgroundType:{
-        backgroundColor: "#C4F7F7",
-    },
-    ghostBackgroundType:{
-        backgroundColor: "#C9BAE2",
-    },
-    dragonBackgroundType:{
-        backgroundColor: "#F89887",
-    },
-
-    
+  grass: {
+    backgroundColor: "#9BCB51",
+    shadowColor: "#9BCB51",
+  },
+  poison: {
+    backgroundColor: "#B97FC9",
+    shadowColor: "#B97FC9",
+  },
+  fire: {
+    backgroundColor: "#FD7D24",
+    shadowColor: "#FD7D24",
+  },
+  flying: {
+    backgroundColor: "#3DC7EF",
+    shadowColor: "#3DC7EF",
+  },
+  water: {
+    backgroundColor: "#4592C4",
+    shadowColor: "#4592C4",
+  },
+  bug: {
+    backgroundColor: "#729F3F",
+    shadowColor: "#729F3F",
+  },
+  normal: {
+    backgroundColor: "#A4ACAF",
+    shadowColor: "#A4ACAF",
+  },
+  electric: {
+    backgroundColor: "#EED535",
+    shadowColor: "#EED535",
+  },
+  ground: {
+    backgroundColor: "#AB9842",
+    shadowColor: "#AB9842",
+  },
+  fairy: {
+    backgroundColor: "#FDB9E9",
+    shadowColor: "#FDB9E9",
+  },
+  fighting: {
+    backgroundColor: "#D56723",
+    shadowColor: "#D56723",
+  },
+  psychic: {
+    backgroundColor: "#F366B9",
+    shadowColor: "#F366B9",
+  },
+  rock: {
+    backgroundColor: "#A38C21",
+    shadowColor: "#A38C21",
+  },
+  steel: {
+    backgroundColor: "#9EB7B8",
+    shadowColor: "#9EB7B8",
+  },
+  ice: {
+    backgroundColor: "#51C4E7",
+    shadowColor: "#51C4E7",
+  },
+  ghost: {
+    backgroundColor: "#7B62A3",
+    shadowColor: "#7B62A3",
+  },
+  dragon: {
+    backgroundColor: "#F16E57",
+    shadowColor: "#F16E57",
+  },
+  // background type :
+  grassBackgroundType: {
+    backgroundColor: "#A9DFAF",
+  },
+  poisonBackgroundType: {
+    backgroundColor: "#DBA4EB",
+  },
+  fireBackgroundType: {
+    backgroundColor: "#EEA57B",
+  },
+  flyingBackgroundType: {
+    backgroundColor: "#3DC7EF",
+  },
+  waterBackgroundType: {
+    backgroundColor: "#95C9EA",
+  },
+  bugBackgroundType: {
+    backgroundColor: "#C6D16E",
+  },
+  normalBackgroundType: {
+    backgroundColor: "#C3D1D7",
+  },
+  electricBackgroundType: {
+    backgroundColor: "#E5D776",
+  },
+  groundBackgroundType: {
+    backgroundColor: "#F4DD86",
+  },
+  fairyBackgroundType: {
+    backgroundColor: "#FFE4F6",
+  },
+  fightingBackgroundType: {
+    backgroundColor: "#F1BA80",
+  },
+  psychicBackgroundType: {
+    backgroundColor: "#F993CF",
+  },
+  rockBackgroundType: {
+    backgroundColor: "#E3D8B0",
+  },
+  steelBackgroundType: {
+    backgroundColor: "#DAE9EB",
+  },
+  iceBackgroundType: {
+    backgroundColor: "#C4F7F7",
+  },
+  ghostBackgroundType: {
+    backgroundColor: "#C9BAE2",
+  },
+  dragonBackgroundType: {
+    backgroundColor: "#F89887",
+  },
 
   text__type: {
     fontSize: 12,

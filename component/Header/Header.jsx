@@ -8,27 +8,21 @@ import { useNavigation } from "@react-navigation/native";
 const Header = () => {
   const navigation = useNavigation();
 
-
   return (
     <View style={styles.container__header}>
-      <LinearGradient
-        style={styles.header}
-        colors={["#22E7B2", "#22E7B2"]}
-        start={{ x: -0.3, y: 0 }}
-        end={{ x: 1.3, y: 1 }}
-      >
+      <View style={styles.header}>
         <View style={styles.container__buttons}>
           <TouchableOpacity
             style={styles.menu__button}
             onPress={() => navigation.navigate("Home")}
           >
-            <MaterialIcons name="home" size={26} color="white" />
+            <MaterialIcons name="home" size={26} color="#2DD3BF" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.menu__button}
             onPress={() => navigation.navigate("Favorites")}
           >
-            <MaterialIcons name="favorite" size={26} color="white" />
+            <MaterialIcons name="favorite" size={26} color="#2DD3BF" />
           </TouchableOpacity>
         </View>
         <View style={styles.container__buttons}>
@@ -36,16 +30,16 @@ const Header = () => {
             style={styles.menu__button}
             onPress={() => navigation.navigate("Settings")}
           >
-            <MaterialIcons name="settings" size={26} color="white" />
+            <MaterialIcons name="settings" size={26} color="#2DD3BF" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.menu__button}
             onPress={() => navigation.navigate("Profile")}
           >
-            <MaterialIcons name="person" size={26} color="white" />
+            <MaterialIcons name="person" size={26} color="#2DD3BF" />
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </View>
       <TouchableOpacity
         style={styles.input__submit}
         onPress={() => navigation.navigate("ARView")}
@@ -56,7 +50,7 @@ const Header = () => {
           start={{ x: -0.3, y: 0 }}
           end={{ x: 1.3, y: 1 }}
         >
-          <MaterialIcons name="menu" size={40} color="white" />
+          <MaterialIcons name="home" size={35} color="white" />
         </LinearGradient>
       </TouchableOpacity>
     </View>
@@ -72,24 +66,30 @@ const styles = StyleSheet.create({
   },
   header: {
     position: "absolute",
-    top: 740,
-    left: "2.5%",
-    width: "95%",
-    height: 40,
-    borderRadius: 50,
-    backgroundColor: "red",
+    top: 760,
+    left: 0,
+    width: "100%",
+    height: 100,
+    backgroundColor: "#ffffff",
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 30,
+    shadowColor: "#171717",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 2,
+    elevation: 5,
   },
   container__buttons: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: 30,
+    gap: 50,
+    paddingHorizontal: 20,
+    paddingBottom: 0,
   },
   central__btn: {
     position: "absolute",
@@ -98,17 +98,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 50,
-    backgroundColor: "red",
     alignItems: "center",
     justifyContent: "center",
 
-    shadowColor: "#171717",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 2,
-
-    borderWidth: 3,
-    borderColor: "white",
   },
 
   headerText: {

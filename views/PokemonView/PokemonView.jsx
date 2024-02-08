@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MaterialIcons } from "@expo/vector-icons";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
@@ -8,21 +10,28 @@ const PokemonView = ({ route }) => {
   const { pokemon } = route.params;
   const navigation = useNavigation();
 
+  const [pokemonTypes, setPokemonTypes] = useState([]);
+  const [pokemonId, setPokemonId] = useState(null);
+  const [teamData, setTeamData] = useState([]);
+  const [selectedPokemon, setSelectedPokemon] = useState(null);
+
+  const [teamButtonActive, setTeamButtonActive] = useState(false);
+
+  const handleTeamButtonClick = () => {
+    setTeamButtonActive(!teamButtonActive);
+  };
+
   const extractIdFromUrl = (url) => {
-    // L'extraction de l'ID à partir de l'URL dépend de la structure spécifique de votre API
-    // Vous pouvez utiliser une expression régulière ou d'autres méthodes pour extraire l'ID
     const match = url.match(/\/(\d+)\/$/);
     if (match && match[1]) {
       return match[1];
     }
     return null;
   };
+
   const id = extractIdFromUrl(pokemon.url);
   const formattedId = String(id).padStart(4, "0");
   const imageUrl = `https://raw.githubusercontent.com/wellrccity/pokedex-html-js/master/assets/img/pokemons/poke_${id}.gif`;
-
-  console.log(imageUrl);
-  const [pokemonTypes, setPokemonTypes] = useState([]);
 
   useEffect(() => {
     const fetchPokemonDetails = async () => {
@@ -30,6 +39,8 @@ const PokemonView = ({ route }) => {
         const response = await axios.get(pokemon.url);
         const data = response.data;
         const types = data.types.map((type) => type.type.name);
+        const pokemonId = data.id;
+        setPokemonId(pokemonId);
         setPokemonTypes(types);
       } catch (error) {
         console.error(
@@ -41,6 +52,80 @@ const PokemonView = ({ route }) => {
 
     fetchPokemonDetails();
   }, [pokemon]);
+
+  useEffect(() => {
+    const getTeamData = async () => {
+      const storedTeamData =
+        JSON.parse(await AsyncStorage.getItem("pokemonTeam")) || [];
+      setTeamData(storedTeamData);
+      setTeamButtonActive(
+        storedTeamData.some((pokemon) => pokemon.id === pokemonId)
+      );
+      const selectedPokemonData = JSON.parse(
+        await AsyncStorage.getItem("selectedPokemon")
+      );
+      setSelectedPokemon(selectedPokemonData?.id || null);
+    };
+
+    if (pokemonId) {
+      getTeamData();
+    }
+  }, [pokemonId]);
+
+  const handleTeamPokemonButtonClick = async (id, name, imageUrl) => {
+    const updatedTeam = [...teamData];
+    const pokemonIndex = updatedTeam.findIndex((pokemon) => pokemon.id === id);
+
+    if (pokemonIndex !== -1) {
+      updatedTeam.splice(pokemonIndex, 1);
+      setSelectedPokemon(null);
+    } else {
+      updatedTeam.push({ id, name, imageUrl });
+      setSelectedPokemon(id);
+    }
+
+    try {
+      await AsyncStorage.setItem("pokemonTeam", JSON.stringify(updatedTeam));
+      setTeamData(updatedTeam);
+      AsyncStorage.setItem(
+        "selectedPokemon",
+        JSON.stringify(selectedPokemon ? { id, name, imageUrl } : null)
+      );
+      setTeamButtonActive(
+        updatedTeam.some((pokemon) => pokemon.id === pokemonId)
+      );
+    } catch (error) {
+      console.error(
+        "Erreur lors de la mise à jour de l'équipe Pokémon :",
+        error
+      );
+    }
+  };
+
+  const handleRemoveFromTeam = async () => {
+    if (selectedPokemon) {
+      try {
+        const updatedTeam = teamData.filter(
+          (pokemon) => pokemon.id !== selectedPokemon
+        );
+        await AsyncStorage.setItem("pokemonTeam", JSON.stringify(updatedTeam));
+        setTeamData(updatedTeam);
+        setSelectedPokemon(null); // Mettez à jour selectedPokemon ici
+        // Supprimer également les informations du Pokémon sélectionné
+        await AsyncStorage.removeItem("selectedPokemon");
+        // Autres actions si nécessaires...
+      } catch (error) {
+        console.error(
+          "Erreur lors de la suppression du Pokémon de l'équipe : ",
+          error
+        );
+      }
+    }
+  };
+
+  const handleSelectPokemon = (id) => {
+    setSelectedPokemon(id);
+  };
 
   const getTypeStyle = (type) => {
     switch (type) {
@@ -122,10 +207,30 @@ const PokemonView = ({ route }) => {
     }
   };
 
-
+  const getHexaByTypes = (type) => {
+    const backgroundStyle = getBackgroundTypeStyle(type);
+  
+    // Vérifier si le style est défini
+    if (backgroundStyle && backgroundStyle.backgroundColor) {
+      // Extrayez la couleur hexadécimale du style
+      return backgroundStyle.backgroundColor;
+    } else {
+      // Couleur par défaut si le type n'est pas géré ou si le style n'est pas défini
+      return "#FFFFFF";
+    }
+  };
+  
+  
   return (
-    <View
-      style={[styles.main__container, getBackgroundTypeStyle(pokemonTypes[0])]}
+    // <View
+    //   style={[styles.main__container, getBackgroundTypeStyle(pokemonTypes[0])]}
+    // >
+    console.log(getBackgroundTypeStyle(pokemonTypes[0])),
+    <LinearGradient
+      colors={[getHexaByTypes(pokemonTypes[0]), "#000"]}
+      style={styles.main__container}
+      start={{ x: -0.3, y: 0 }}
+      end={{ x: 1.3, y: 1 }}
     >
       <TouchableOpacity
         style={styles.button__back}
@@ -134,25 +239,125 @@ const PokemonView = ({ route }) => {
         <MaterialIcons name="arrow-back" size={26} color="white" />
       </TouchableOpacity>
 
-      <View style={styles.container__number}>
-        <Text>n°{formattedId}</Text>
+      <View
+        style={
+          teamButtonActive ? styles.team__button__active : styles.team__button
+        }
+      >
+        <View
+          style={
+            teamButtonActive
+              ? styles.container__team__active
+              : styles.container__team
+          }
+        >
+          {[...Array(6)].map((_, index) => {
+            const pokemonInfo = teamData[index] || {
+              id: "Aucun",
+              name: "",
+              imageUrl: "",
+            };
+            const isSelectable = pokemonInfo.id !== "Aucun";
+
+            return (
+              <TouchableOpacity
+                key={index}
+                onPress={() =>
+                  isSelectable && handleSelectPokemon(pokemonInfo.id)
+                }
+                disabled={!isSelectable}
+              >
+                <View
+                  style={[
+                    styles.pokemon__team,
+                    isSelectable && styles.withInfo,
+                    selectedPokemon === pokemonInfo.id &&
+                      styles.selectedPokemon,
+                  ]}
+                >
+                  <Text style={styles.name__team__pokemon}>
+                    {pokemonInfo.name}
+                  </Text>
+                  {pokemonInfo.imageUrl && (
+                    <Image
+                      source={{ uri: pokemonInfo.imageUrl }}
+                      style={styles.team__pokemon__image}
+                    />
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+
+          <TouchableOpacity
+            style={[
+              styles.enlever,
+              selectedPokemon ? styles.enlever__active : null,
+            ]}
+            onPress={handleRemoveFromTeam}
+            disabled={!selectedPokemon}
+          >
+            <Text style={styles.enlever__text}>Retirer de l'équipe</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          onPress={handleTeamButtonClick}
+          style={styles.container__pokeball__image}
+        >
+          <Image
+            style={styles.pokeball__image}
+            source={require("../../assets/images/pokeball.png")}
+          />
+        </TouchableOpacity>
       </View>
 
-      <View style={styles.container__info}>
-        <Image source={{ uri: imageUrl }} style={styles.image} />
-        <Text style={styles.name}>{pokemon.name}</Text>
-        <View style={styles.container__type}>
-          {pokemonTypes.map((type, index) => (
-            <View key={index} style={[styles.type, getTypeStyle(type)]}>
-              <Text style={styles.text__type}>{type}</Text>
-            </View>
-          ))}
-        </View>
-        <View>
-        {/* <Text style={styles.description}>{pokemonDescription}</Text> */}
-        </View>
+      <Image source={{ uri: imageUrl }} style={styles.image} />
+
+      <Text style={styles.name}>{pokemon.name}</Text>
+
+      <View style={styles.container__type}>
+        {pokemonTypes.map((type, index) => (
+          <View key={index} style={[styles.type, getTypeStyle(type)]}>
+            <Text style={styles.text__type}>{type}</Text>
+          </View>
+        ))}
       </View>
-    </View>
+
+      <TouchableOpacity
+        onPress={() => handleTeamPokemonButtonClick(id, pokemon.name, imageUrl)}
+        style={[
+          styles.ajouter__equipe__button,
+          teamData.some((teamPokemon) => teamPokemon.id === id)
+            ? styles.retirer__equipe__button
+            : teamData.length === 6
+            ? styles.equipe__pleine__button
+            : null,
+        ]}
+        disabled={
+          teamData.length === 6 &&
+          !teamData.some((teamPokemon) => teamPokemon.id === id)
+        }
+      >
+        <Text
+          style={[
+            styles.ajouter__equipe__text,
+            teamData.some((teamPokemon) => teamPokemon.id === id)
+              ? styles.retirer__equipe__text
+              : teamData.length === 6
+              ? styles.equipe__pleine__text
+              : null,
+          ]}
+        >
+          {teamData.some((teamPokemon) => teamPokemon.id === id)
+            ? "Retirer de l'équipe"
+            : teamData.length === 6
+            ? "Votre équipe est pleine !"
+            : "Ajouter à l'équipe"}
+        </Text>
+      </TouchableOpacity>
+    </LinearGradient>
+    // </View>
   );
 };
 
@@ -162,32 +367,112 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "100%",
     height: "100%",
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "flex-start",
-  },
-  container__info: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    width: "100%",
-    height: "70%",
-    borderRadius: "25px 25px 0 0",
-    backgroundColor: "white",
 
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "flex-start",
     padding: 20,
-
-    shadowColor: "#171717",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-
-    gap: 10,
   },
+  team__button: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 80,
+    height: 100,
+    backgroundColor: "#ffffff90",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottomLeftRadius: 50,
+    zIndex: 100000,
+    transition: "all 0.5s ease",
+  },
+
+  team__button__active: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 330,
+    height: 600,
+    backgroundColor: "#ffffff",
+
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    borderBottomLeftRadius: 50,
+    zIndex: 100000,
+  },
+  container__team: {
+    display: "flex",
+    flexWrap: "wrap",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+    padding: 20,
+    opacity: 0,
+  },
+
+  container__team__active: {
+    display: "flex",
+    flexWrap: "wrap",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 20,
+    padding: 20,
+  },
+  pokemon__team: {
+    width: 100,
+    height: 100,
+    backgroundColor: "#EBEBEB",
+    borderRadius: 5,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: 10,
+  },
+  withInfo: {
+    backgroundColor: "#EBEBEB",
+  },
+
+  selectedPokemon: {
+    backgroundColor: "#9aed95",
+  },
+  team__pokemon__image: {
+    position: "absolute",
+    top: -25,
+    left: 10,
+
+    width: 80,
+    height: 80,
+    resizeMode: "contain",
+  },
+  name__team__pokemon: {
+    fontSize: 10,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    color: "#000",
+  },
+  enlever: {
+    width: 220,
+    height: 50,
+    backgroundColor: "#ebaeaf",
+    borderRadius: 5,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  enlever__active: {
+    backgroundColor: "#f26163",
+  },
+  enlever__text: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+
   container__number: {
     position: "absolute",
     top: 55,
@@ -199,7 +484,61 @@ const styles = StyleSheet.create({
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    borderRadius: 100,
+  },
+  container__pokeball__image: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    marginTop: 25,
+    width: 40,
+    height: 40,
+    resizeMode: "contain",
+  },
+  pokeball__image: {
+    width: 40,
+    height: 40,
+    resizeMode: "contain",
+  },
+  ajouter__equipe__button: {
+    cursor: "pointer",
+    width: 220,
+    height: 35,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#fff",
     borderRadius: 50,
+    marginTop: 20,
+  },
+
+  ajouter__equipe__text: {
+    fontSize: 13,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    color: "#ff9830",
+    padding: 10,
+  },
+  retirer__equipe__text: {
+    fontSize: 13,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    color: "#fff",
+    padding: 10,
+  },
+  equipe__pleine__text: {
+    fontSize: 13,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    color: "#fff",
+    padding: 10,
+  },
+
+  retirer__equipe__button: {
+    backgroundColor: "#f26163",
+  },
+  equipe__pleine__button: {
+    backgroundColor: "#ff8640",
   },
   button__back: {
     position: "absolute",
@@ -215,25 +554,27 @@ const styles = StyleSheet.create({
   },
   image: {
     width: 200,
-    height: 190,
+    height: 240,
     resizeMode: "contain",
     position: "absolute",
-    top: -150,
+    top: 10,
     left: 100,
   },
   name: {
-    marginTop: 40,
+    marginTop: 250,
     fontSize: 24,
     fontWeight: "bold",
     textTransform: "uppercase",
+    color: "#fff",
   },
 
   container__type: {
     display: "flex",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
     gap: 10,
+    marginTop: 10,
   },
 
   type: {

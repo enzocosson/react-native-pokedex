@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import React from "react";
+import { StyleSheet } from "react-native";
 import Home from "./views/Home/Home";
 import Pokedex from "./views/Pokedex/Pokedex";
 import PokemonView from "./views/PokemonView/PokemonView";
