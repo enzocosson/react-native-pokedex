@@ -20,7 +20,7 @@ const Header = () => {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.menu__button}
-            onPress={() => navigation.navigate("Favorites")}
+            onPress={() => navigation.navigate("Favoris")}
           >
             <MaterialIcons name="favorite" size={26} color="#2DD3BF" />
           </TouchableOpacity>
@@ -42,7 +42,7 @@ const Header = () => {
       </View>
       <TouchableOpacity
         style={styles.input__submit}
-        onPress={() => navigation.navigate("ARView")}
+        onPress={() => navigation.navigate("Home")}
       >
         <LinearGradient
           style={styles.central__btn}

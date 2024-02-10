@@ -1,6 +1,9 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import Home from "./views/Home/Home";
+import Favoris from "./views/Favoris/Favoris"
+import Settings from "./views/Settings/Settings"
+import Profile from "./views/Profile/Profile"
 import Pokedex from "./views/Pokedex/Pokedex";
 import PokemonView from "./views/PokemonView/PokemonView";
 import ARView from "./views/CaptureView/CaptureView";
@@ -22,6 +25,10 @@ const App = () => {
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Home" component={Home} />
+          <Stack.Screen name="Favoris" component={Favoris} />
+          <Stack.Screen name="Settings" component={Settings} />
+          <Stack.Screen name="Profile" component={Profile} />
+
           <Stack.Screen
             name="Pokedex"
             component={Pokedex}
