@@ -1,9 +1,16 @@
-import React from "react";
-import { View, Text, StyleSheet} from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, Button } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 const Settings = () => {
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  const handleSave = () => {
+    // Ajoutez ici la logique pour sauvegarder les paramètres
+    console.log("Paramètres sauvegardés :", { username, email, password });
+  };
 
   return (
     <View style={styles.container}>
@@ -13,7 +20,34 @@ const Settings = () => {
         start={{ x: -0.3, y: 0 }}
         end={{ x: 1.3, y: 1 }}
       >
-        <Text style={styles.text}>Page de Settings</Text>
+        <View style={styles.settingsContainer}>
+          <Text style={styles.label}>Nom d'utilisateur :</Text>
+          <TextInput
+            style={styles.input}
+            value={username}
+            onChangeText={(text) => setUsername(text)}
+          />
+
+          <Text style={styles.label}>Langue :</Text>
+          <TextInput style={styles.input} value="Français" editable={false} />
+
+          <Text style={styles.label}>Thème :</Text>
+          <TextInput style={styles.input} value="Clair" editable={false} />
+
+          <Text style={styles.label}>Notifications :</Text>
+          <TextInput style={styles.input} value="Activées" editable={false} />
+
+          <Text style={styles.label}>Son :</Text>
+          <TextInput style={styles.input} value="Activé" editable={false} />
+
+          <Text style={styles.label}>Vibration :</Text>
+          <TextInput style={styles.input} value="Activée" editable={false} />
+
+
+
+
+          <Button title="Enregistrer" onPress={handleSave} />
+        </View>
       </LinearGradient>
     </View>
   );
@@ -21,12 +55,10 @@ const Settings = () => {
 
 const styles = StyleSheet.create({
   container: {
-    position: "relative",
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    background:
-      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%)",
+    backgroundColor: "#091079",
   },
   background: {
     width: "100%",
@@ -35,20 +67,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  text: {
-    fontSize: 18,
-    textAlign: "center",
-    color: "white",
-    margin: 10,
-    fontWeight:"bold",
+  settingsContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
   },
-  gradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: "#1ABEF7",
+  label: {
+    fontSize: 16,
+    marginBottom: 5,
+    color: "#333",
+  },
+  input: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
 });
 
