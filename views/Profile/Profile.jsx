@@ -1,9 +1,17 @@
 import React from "react";
-import { View, Text, StyleSheet} from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 
 const Profile = () => {
+  const profileData = {
+    firstName: "John",
+    lastName: "Doe",
+    age: 28,
+    nationality: "French",
+    // Ajoutez d'autres informations de profil fictives ici
+  };
 
+  const imageUrl = "https://i.redd.it/cb3x6hw93oh91.jpg"
 
   return (
     <View style={styles.container}>
@@ -13,7 +21,13 @@ const Profile = () => {
         start={{ x: -0.3, y: 0 }}
         end={{ x: 1.3, y: 1 }}
       >
-        <Text style={styles.text}>Page de Profile</Text>
+        <View style={styles.profileContainer}>
+        <Image source={{ uri: imageUrl }} style={styles.image} />
+          <Text style={styles.text}>{`${profileData.firstName} ${profileData.lastName}`}</Text>
+          <Text style={styles.text}>{`Age: ${profileData.age}`}</Text>
+          <Text style={styles.text}>{`Nationality: ${profileData.nationality}`}</Text>
+          {/* Ajoutez d'autres composants Text pour afficher d'autres informations */}
+        </View>
       </LinearGradient>
     </View>
   );
@@ -21,12 +35,10 @@ const Profile = () => {
 
 const styles = StyleSheet.create({
   container: {
-    position: "relative",
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    background:
-      "linear-gradient(90deg, rgba(2,0,36,1) 0%, rgba(9,9,121,1) 35%, rgba(0,212,255,1) 100%)",
+    backgroundColor: "#091079",
   },
   background: {
     width: "100%",
@@ -35,20 +47,30 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  profileContainer: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 10,
+  },
   text: {
     fontSize: 18,
-    textAlign: "center",
-    color: "white",
-    margin: 10,
-    fontWeight:"bold",
+    color: "#333",
+    margin: 5,
+    fontWeight: "bold",
   },
-  gradient: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 50,
-    borderWidth: 3,
-    borderColor: "#1ABEF7",
+  image: {
+    width: 120,
+    height: 112,
+    borderRadius: 75,
+    marginBottom: 10,
+    border: "2px solid blue",
   },
 });
 
